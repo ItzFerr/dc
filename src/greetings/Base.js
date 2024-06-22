@@ -1,4 +1,5 @@
 const Canvas = require("canvas");
+const axios = require("axios");
 const { formatVariable, applyText } = require("../../utils/functions");
 
 module.exports = class Greeting {
@@ -86,7 +87,16 @@ module.exports = class Greeting {
         // Draw background
         ctx.fillStyle = this.colorBackground;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        let background = await Canvas.loadImage(this.backgroundImage);
+
+        // Fetch and load background image
+        let background;
+        if (this.backgroundImage.startsWith("http://") || this.backgroundImage.startsWith("https://")) {
+            const response = await axios.get(this.backgroundImage, { responseType: 'arraybuffer' });
+            const buffer = Buffer.from(response.data, 'binary');
+            background = await Canvas.loadImage(buffer);
+        } else {
+            background = await Canvas.loadImage(this.backgroundImage);
+        }
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
         // Draw layer
