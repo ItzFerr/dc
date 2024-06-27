@@ -3,7 +3,6 @@ const axios = require("axios");
 const { formatVariable, applyText } = require("../../utils/functions");
 
 module.exports = class Greeting {
-
     constructor() {
         this.username = "Clyde";
         this.guildName = "ServerName";
@@ -20,8 +19,6 @@ module.exports = class Greeting {
         this.opacityUsernameBox = "0.4";
         this.discriminator = "XXXX";
         this.colorDiscriminator = "#ffffff";
-        this.colorAvatar = "#000000";
-        this.opacityDiscriminatorBox = "0.4";
         this.colorDiscriminatorBox = "#000000";
         this.colorMessage = "#ffffff";
         this.colorHashtag = "#ffffff";
@@ -32,44 +29,44 @@ module.exports = class Greeting {
         this.avatar = value;
         return this;
     }
-    
+
     setDiscriminator(value) {
         this.discriminator = value;
         return this;
     }
-    
+
     setUsername(value) {
         this.username = value;
         return this;
     }
-    
+
     setGuildName(value) {
         this.guildName = value;
         return this;
     }
-    
+
     setMemberCount(value) {
         this.memberCount = value;
         return this;
     }
-    
+
     setBackground(value) {
         this.backgroundImage = value;
         return this;
     }
-    
+
     setColor(variable, value) {
         const formattedVariable = formatVariable("color", variable);
         if (this[formattedVariable]) this[formattedVariable] = value;
         return this;
     }
-      
+
     setText(variable, value) {
         const formattedVariable = formatVariable("text", variable);
         if (this[formattedVariable]) this[formattedVariable] = value;
         return this;
     }
-    
+
     setOpacity(variable, value) {
         const formattedVariable = formatVariable("opacity", variable);
         if (this[formattedVariable]) this[formattedVariable] = value;
@@ -90,12 +87,23 @@ module.exports = class Greeting {
 
         // Fetch and load background image
         let background;
+        console.log("Fetching background image from URL:", this.backgroundImage); // Logging URL
         if (this.backgroundImage.startsWith("http://") || this.backgroundImage.startsWith("https://")) {
-            const response = await axios.get(this.backgroundImage, { responseType: 'arraybuffer' });
-            const buffer = Buffer.from(response.data, 'binary');
-            background = await Canvas.loadImage(buffer);
+            try {
+                const response = await axios.get(this.backgroundImage, { responseType: 'arraybuffer' });
+                const buffer = Buffer.from(response.data, 'binary');
+                background = await Canvas.loadImage(buffer);
+            } catch (error) {
+                console.error("Error fetching background image:", error.message); // Logging error
+                throw error;
+            }
         } else {
-            background = await Canvas.loadImage(this.backgroundImage);
+            try {
+                background = await Canvas.loadImage(this.backgroundImage);
+            } catch (error) {
+                console.error("Error loading local background image:", error.message); // Logging error
+                throw error;
+            }
         }
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
