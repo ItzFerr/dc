@@ -90,7 +90,15 @@ module.exports = class Greeting {
         console.log("Fetching background image from URL:", this.backgroundImage); // Logging URL
         if (this.backgroundImage.startsWith("http://") || this.backgroundImage.startsWith("https://")) {
             try {
-                const response = await axios.get(this.backgroundImage, { responseType: 'arraybuffer' });
+                // Ensure the URL is a supported format
+                const url = new URL(this.backgroundImage);
+                if (url.searchParams.has("format")) {
+                    url.searchParams.set("format", "png");
+                } else {
+                    url.searchParams.append("format", "png");
+                }
+
+                const response = await axios.get(url.toString(), { responseType: 'arraybuffer' });
                 const buffer = Buffer.from(response.data, 'binary');
                 background = await Canvas.loadImage(buffer);
             } catch (error) {
