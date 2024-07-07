@@ -66,40 +66,48 @@ module.exports = class Greeting {
     }
 
     async toAttachment() {
-        // Create canvas
+        // Buat canvas
         const canvas = Canvas.createCanvas(1024, 450);
         const ctx = canvas.getContext("2d");
 
         const guildName = this.textMessage.replace(/{server}/g, this.guildName);
         const memberCount = this.textMemberCount.replace(/{count}/g, this.memberCount);
 
-        // Draw background
+        // Gambar latar belakang
         ctx.fillStyle = this.colorBackground;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Fetch and load background image
+        // Ambil dan muat gambar latar belakang
         let background;
-        console.log("Fetching background image from URL:", this.backgroundImage); // Logging URL
+        console.log("Mengambil gambar latar belakang dari URL:", this.backgroundImage); // Logging URL
         if (this.backgroundImage.startsWith("http://") || this.backgroundImage.startsWith("https://")) {
             try {
-                const response = await axios.get(this.backgroundImage, { responseType: 'arraybuffer' });
+                // Ensure the URL is a supported format
+                const url = new URL(this.backgroundImage);
+                if (url.searchParams.has("format")) {
+                    url.searchParams.set("format", "png");
+                } else {
+                    url.searchParams.append("format", "png");
+                }
+
+                const response = await axios.get(url.toString(), { responseType: 'arraybuffer' });
                 const buffer = Buffer.from(response.data, 'binary');
                 background = await Canvas.loadImage(buffer);
             } catch (error) {
-                console.error("Error fetching background image:", error.message); // Logging error
+                console.error("Kesalahan saat mengambil gambar latar belakang:", error.message); // Logging error
                 throw error;
             }
         } else {
             try {
                 background = await Canvas.loadImage(this.backgroundImage);
             } catch (error) {
-                console.error("Error loading local background image:", error.message); // Logging error
+                console.error("Kesalahan saat memuat gambar latar belakang lokal:", error.message); // Logging error
                 throw error;
             }
         }
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-        // Draw layer
+        // Gambar layer
         ctx.fillStyle = this.colorBorder;
         ctx.globalAlpha = this.opacityBorder;
         ctx.fillRect(0, 0, 25, canvas.height);
@@ -108,28 +116,28 @@ module.exports = class Greeting {
         ctx.fillRect(25, canvas.height - 25, canvas.width - 50, 25);
         ctx.fillStyle = this.colorUsernameBox;
         ctx.globalAlpha = this.opacityUsernameBox;
-        ctx.fillRect(344, canvas.height - 256, 625, 65); // Adjusted position for username box
+        ctx.fillRect(344, canvas.height - 236, 625, 65); // Posisi kotak username digeser ke bawah
         ctx.fillStyle = this.colorMessageBox;
         ctx.globalAlpha = this.opacityMessageBox;
         ctx.fillRect(308, canvas.height - 110, 672, 65);
 
-        // Draw username
+        // Gambar username
         ctx.globalAlpha = 1;
         ctx.fillStyle = this.colorUsername;
         ctx.font = applyText(canvas, this.username, 48, 600, "Bold");
-        ctx.fillText(this.username, canvas.width - 660, canvas.height - 208); // Adjusted position for username
+        ctx.fillText(this.username, canvas.width - 660, canvas.height - 188); // Posisi username digeser ke bawah
 
-        // Draw guild name
+        // Gambar nama guild
         ctx.fillStyle = this.colorMessage;
         ctx.font = applyText(canvas, guildName, 53, 600, "Bold");
         ctx.fillText(guildName, canvas.width - 690, canvas.height - 62);
 
-        // Draw member count
+        // Gambar jumlah anggota
         ctx.fillStyle = this.colorMemberCount;
         ctx.font = "22px Bold";
         ctx.fillText(memberCount, 40, canvas.height - 35);
 
-        // Draw title
+        // Gambar judul
         ctx.font = "90px Bold";
         ctx.strokeStyle = this.colorTitleBorder;
         ctx.lineWidth = 15;
@@ -137,7 +145,7 @@ module.exports = class Greeting {
         ctx.fillStyle = this.colorTitle;
         ctx.fillText(this.textTitle, canvas.width - 620, canvas.height - 330);
 
-        // Draw avatar circle
+        // Gambar lingkaran avatar
         ctx.beginPath();
         ctx.lineWidth = 10;
         ctx.strokeStyle = this.colorAvatar;
