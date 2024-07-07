@@ -17,9 +17,6 @@ module.exports = class Greeting {
         this.colorUsername = "#ffffff";
         this.colorUsernameBox = "#000000";
         this.opacityUsernameBox = "0.4";
-        this.discriminator = "XXXX";
-        this.colorDiscriminator = "#ffffff";
-        this.colorDiscriminatorBox = "#000000";
         this.colorMessage = "#ffffff";
         this.colorHashtag = "#ffffff";
         this.colorBackground = "000000";
@@ -27,11 +24,6 @@ module.exports = class Greeting {
 
     setAvatar(value) {
         this.avatar = value;
-        return this;
-    }
-
-    setDiscriminator(value) {
-        this.discriminator = value;
         return this;
     }
 
@@ -90,15 +82,7 @@ module.exports = class Greeting {
         console.log("Fetching background image from URL:", this.backgroundImage); // Logging URL
         if (this.backgroundImage.startsWith("http://") || this.backgroundImage.startsWith("https://")) {
             try {
-                // Ensure the URL is a supported format
-                const url = new URL(this.backgroundImage);
-                if (url.searchParams.has("format")) {
-                    url.searchParams.set("format", "png");
-                } else {
-                    url.searchParams.append("format", "png");
-                }
-
-                const response = await axios.get(url.toString(), { responseType: 'arraybuffer' });
+                const response = await axios.get(this.backgroundImage, { responseType: 'arraybuffer' });
                 const buffer = Buffer.from(response.data, 'binary');
                 background = await Canvas.loadImage(buffer);
             } catch (error) {
@@ -124,10 +108,7 @@ module.exports = class Greeting {
         ctx.fillRect(25, canvas.height - 25, canvas.width - 50, 25);
         ctx.fillStyle = this.colorUsernameBox;
         ctx.globalAlpha = this.opacityUsernameBox;
-        ctx.fillRect(344, canvas.height - 296, 625, 65);
-        ctx.fillStyle = this.colorDiscriminatorBox;
-        ctx.globalAlpha = this.opacityDiscriminatorBox;
-        ctx.fillRect(389, canvas.height - 225, 138, 65);
+        ctx.fillRect(344, canvas.height - 256, 625, 65); // Adjusted position for username box
         ctx.fillStyle = this.colorMessageBox;
         ctx.globalAlpha = this.opacityMessageBox;
         ctx.fillRect(308, canvas.height - 110, 672, 65);
@@ -136,27 +117,17 @@ module.exports = class Greeting {
         ctx.globalAlpha = 1;
         ctx.fillStyle = this.colorUsername;
         ctx.font = applyText(canvas, this.username, 48, 600, "Bold");
-        ctx.fillText(this.username, canvas.width - 660, canvas.height - 248);
+        ctx.fillText(this.username, canvas.width - 660, canvas.height - 208); // Adjusted position for username
 
         // Draw guild name
         ctx.fillStyle = this.colorMessage;
         ctx.font = applyText(canvas, guildName, 53, 600, "Bold");
         ctx.fillText(guildName, canvas.width - 690, canvas.height - 62);
 
-        // Draw discriminator
-        ctx.fillStyle = this.colorDiscriminator;
-        ctx.font = "40px Bold";
-        ctx.fillText(this.discriminator, canvas.width - 623, canvas.height - 178);
-
-        // Draw membercount
+        // Draw member count
         ctx.fillStyle = this.colorMemberCount;
         ctx.font = "22px Bold";
         ctx.fillText(memberCount, 40, canvas.height - 35);
-
-        // Draw # for discriminator
-        ctx.fillStyle = this.colorHashtag;
-        ctx.font = "75px SketchMatch";
-        ctx.fillText("#", canvas.width - 690, canvas.height - 165);
 
         // Draw title
         ctx.font = "90px Bold";
